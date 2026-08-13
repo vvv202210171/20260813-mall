@@ -31,4 +31,7 @@ logging:
     root: info
     com.macro.mall: debug
 
-  enableInnerLog: false
+local:
+  upload:
+    path: D:/mall/upload  # 本地上传文件保存目录
+    url: http://localhost:8080/local/files  # 文件访问基础URL

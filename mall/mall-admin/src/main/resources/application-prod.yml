@@ -33,4 +33,7 @@ logging:
     root: info
     com.macro.mall: info
 
-  host: logstash
+local:
+  upload:
+    path: /data/mall/upload  # 生产环境本地上传目录
+    url: http://192.168.3.101:8080/local/files  # 生产环境文件访问URL
