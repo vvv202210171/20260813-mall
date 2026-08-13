@@ -4,7 +4,7 @@ import com.macro.mall.mapper.PmsBrandMapper;
 import com.macro.mall.model.PmsBrand;
 import com.macro.mall.model.UmsMember;
 import com.macro.mall.portal.domain.MemberBrandAttention;
-import com.macro.mall.portal.repository.MemberBrandAttentionRepository;
+import com.macro.mall.portal.dao.MemberBrandAttentionDao;
 import com.macro.mall.portal.service.MemberAttentionService;
 import com.macro.mall.portal.service.UmsMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 会员关注Service实现类
@@ -27,7 +28,7 @@ public class MemberAttentionServiceImpl implements MemberAttentionService {
     @Autowired
     private PmsBrandMapper brandMapper;
     @Autowired
-    private MemberBrandAttentionRepository memberBrandAttentionRepository;
+    private MemberBrandAttentionDao memberBrandAttentionDao;
     @Autowired
     private UmsMemberService memberService;
 
@@ -42,7 +43,7 @@ public class MemberAttentionServiceImpl implements MemberAttentionService {
         memberBrandAttention.setMemberNickname(member.getNickname());
         memberBrandAttention.setMemberIcon(member.getIcon());
         memberBrandAttention.setCreateTime(new Date());
-        MemberBrandAttention findAttention = memberBrandAttentionRepository.findByMemberIdAndBrandId(memberBrandAttention.getMemberId(), memberBrandAttention.getBrandId());
+        MemberBrandAttention findAttention = memberBrandAttentionDao.findByMemberIdAndBrandId(memberBrandAttention.getMemberId(), memberBrandAttention.getBrandId());
         if (findAttention == null) {
             if(sqlEnable){
                 PmsBrand brand = brandMapper.selectByPrimaryKey(memberBrandAttention.getBrandId());
@@ -54,7 +55,7 @@ public class MemberAttentionServiceImpl implements MemberAttentionService {
                     memberBrandAttention.setBrandLogo(brand.getLogo());
                 }
             }
-            memberBrandAttentionRepository.save(memberBrandAttention);
+            memberBrandAttentionDao.save(memberBrandAttention);
             count = 1;
         }
         return count;
@@ -63,25 +64,27 @@ public class MemberAttentionServiceImpl implements MemberAttentionService {
     @Override
     public int delete(Long brandId) {
         UmsMember member = memberService.getCurrentMember();
-        return memberBrandAttentionRepository.deleteByMemberIdAndBrandId(member.getId(),brandId);
+        return memberBrandAttentionDao.deleteByMemberIdAndBrandId(member.getId(),brandId);
     }
 
     @Override
     public Page<MemberBrandAttention> list(Integer pageNum, Integer pageSize) {
         UmsMember member = memberService.getCurrentMember();
-        Pageable pageable = PageRequest.of(pageNum-1,pageSize);
-        return memberBrandAttentionRepository.findByMemberId(member.getId(),pageable);
+        // memberBrandAttentionDao returns a list; wrap into PageImpl for compatibility
+        List<com.macro.mall.portal.domain.MemberBrandAttention> list = memberBrandAttentionDao.findByMemberId(member.getId(), pageNum, pageSize);
+        int total = list.size();
+        return new org.springframework.data.domain.PageImpl<>(list, PageRequest.of(pageNum-1,pageSize), total);
     }
 
     @Override
     public MemberBrandAttention detail(Long brandId) {
         UmsMember member = memberService.getCurrentMember();
-        return memberBrandAttentionRepository.findByMemberIdAndBrandId(member.getId(), brandId);
+        return memberBrandAttentionDao.findByMemberIdAndBrandId(member.getId(), brandId);
     }
 
     @Override
     public void clear() {
         UmsMember member = memberService.getCurrentMember();
-        memberBrandAttentionRepository.deleteAllByMemberId(member.getId());
+        memberBrandAttentionDao.deleteAllByMemberId(member.getId());
     }
 }

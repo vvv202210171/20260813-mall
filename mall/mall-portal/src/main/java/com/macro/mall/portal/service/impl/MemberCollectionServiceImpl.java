@@ -4,7 +4,7 @@ import com.macro.mall.mapper.PmsProductMapper;
 import com.macro.mall.model.PmsProduct;
 import com.macro.mall.model.UmsMember;
 import com.macro.mall.portal.domain.MemberProductCollection;
-import com.macro.mall.portal.repository.MemberProductCollectionRepository;
+import com.macro.mall.portal.dao.MemberProductCollectionDao;
 import com.macro.mall.portal.service.MemberCollectionService;
 import com.macro.mall.portal.service.UmsMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class MemberCollectionServiceImpl implements MemberCollectionService {
     @Autowired
     private PmsProductMapper productMapper;
     @Autowired
-    private MemberProductCollectionRepository productCollectionRepository;
+    private MemberProductCollectionDao productCollectionDao;
     @Autowired
     private UmsMemberService memberService;
 
@@ -39,7 +39,7 @@ public class MemberCollectionServiceImpl implements MemberCollectionService {
         productCollection.setMemberId(member.getId());
         productCollection.setMemberNickname(member.getNickname());
         productCollection.setMemberIcon(member.getIcon());
-        MemberProductCollection findCollection = productCollectionRepository.findByMemberIdAndProductId(productCollection.getMemberId(), productCollection.getProductId());
+        MemberProductCollection findCollection = productCollectionDao.findByMemberIdAndProductId(productCollection.getMemberId(), productCollection.getProductId());
         if (findCollection == null) {
             if (sqlEnable) {
                 PmsProduct product = productMapper.selectByPrimaryKey(productCollection.getProductId());
@@ -51,7 +51,7 @@ public class MemberCollectionServiceImpl implements MemberCollectionService {
                 productCollection.setProductPrice(product.getPrice() + "");
                 productCollection.setProductPic(product.getPic());
             }
-            productCollectionRepository.save(productCollection);
+            productCollectionDao.save(productCollection);
             count = 1;
         }
         return count;
@@ -60,25 +60,24 @@ public class MemberCollectionServiceImpl implements MemberCollectionService {
     @Override
     public int delete(Long productId) {
         UmsMember member = memberService.getCurrentMember();
-        return productCollectionRepository.deleteByMemberIdAndProductId(member.getId(), productId);
+        return productCollectionDao.deleteByMemberIdAndProductId(member.getId(), productId);
     }
 
     @Override
     public Page<MemberProductCollection> list(Integer pageNum, Integer pageSize) {
         UmsMember member = memberService.getCurrentMember();
-        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
-        return productCollectionRepository.findByMemberId(member.getId(), pageable);
+        return productCollectionDao.findByMemberId(member.getId(), pageNum, pageSize);
     }
 
     @Override
     public MemberProductCollection detail(Long productId) {
         UmsMember member = memberService.getCurrentMember();
-        return productCollectionRepository.findByMemberIdAndProductId(member.getId(), productId);
+        return productCollectionDao.findByMemberIdAndProductId(member.getId(), productId);
     }
 
     @Override
     public void clear() {
         UmsMember member = memberService.getCurrentMember();
-        productCollectionRepository.deleteAllByMemberId(member.getId());
+        productCollectionDao.deleteAllByMemberId(member.getId());
     }
 }

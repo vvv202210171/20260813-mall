@@ -4,7 +4,7 @@ import com.macro.mall.mapper.PmsProductMapper;
 import com.macro.mall.model.PmsProduct;
 import com.macro.mall.model.UmsMember;
 import com.macro.mall.portal.domain.MemberReadHistory;
-import com.macro.mall.portal.repository.MemberReadHistoryRepository;
+import com.macro.mall.portal.dao.MemberReadHistoryDao;
 import com.macro.mall.portal.service.MemberReadHistoryService;
 import com.macro.mall.portal.service.UmsMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class MemberReadHistoryServiceImpl implements MemberReadHistoryService {
     @Autowired
     private PmsProductMapper productMapper;
     @Autowired
-    private MemberReadHistoryRepository memberReadHistoryRepository;
+    private MemberReadHistoryDao memberReadHistoryDao;
     @Autowired
     private UmsMemberService memberService;
     @Override
@@ -54,32 +54,25 @@ public class MemberReadHistoryServiceImpl implements MemberReadHistoryService {
             memberReadHistory.setProductPrice(product.getPrice() + "");
             memberReadHistory.setProductPic(product.getPic());
         }
-        memberReadHistoryRepository.save(memberReadHistory);
+        memberReadHistoryDao.save(memberReadHistory);
         return 1;
     }
 
     @Override
     public int delete(List<String> ids) {
-        List<MemberReadHistory> deleteList = new ArrayList<>();
-        for(String id:ids){
-            MemberReadHistory memberReadHistory = new MemberReadHistory();
-            memberReadHistory.setId(id);
-            deleteList.add(memberReadHistory);
-        }
-        memberReadHistoryRepository.deleteAll(deleteList);
+        memberReadHistoryDao.deleteByIds(ids);
         return ids.size();
     }
 
     @Override
     public Page<MemberReadHistory> list(Integer pageNum, Integer pageSize) {
         UmsMember member = memberService.getCurrentMember();
-        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        return memberReadHistoryRepository.findByMemberIdOrderByCreateTimeDesc(member.getId(),pageable);
+        return memberReadHistoryDao.findByMemberIdOrderByCreateTimeDesc(member.getId(), pageNum, pageSize);
     }
 
     @Override
     public void clear() {
         UmsMember member = memberService.getCurrentMember();
-        memberReadHistoryRepository.deleteAllByMemberId(member.getId());
+        memberReadHistoryDao.deleteAllByMemberId(member.getId());
     }
 }
