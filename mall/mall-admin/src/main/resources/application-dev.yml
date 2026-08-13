@@ -35,3 +35,6 @@ local:
   upload:
     path: D:/mall/upload  # 本地上传文件保存目录
     url: http://localhost:8080/local/files  # 文件访问基础URL
+
+upload:
+  type: local  # 存储类型: local / minio / oss

@@ -48,6 +48,8 @@ secure:
       - /admin/logout
       - /minio/upload
       - /aliyun/oss/policy
+      - /upload/config
+      - /local/upload
 
 springdoc:
   swagger-ui:
