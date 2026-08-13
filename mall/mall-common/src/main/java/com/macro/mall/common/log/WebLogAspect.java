@@ -43,9 +43,6 @@ public class WebLogAspect {
         @Autowired
         private DbLogService dbLogService;
 
-        @Value("${logstash.enableInnerLog:false}")
-        private boolean enableDbLog;
-
     @Pointcut("execution(public * com.macro.mall.controller.*.*(..))||execution(public * com.macro.mall.*.controller.*.*(..))")
     public void webLog() {
     }
@@ -93,12 +90,10 @@ public class WebLogAspect {
         logMap.put("spendTime",webLog.getSpendTime());
         logMap.put("description",webLog.getDescription());
 //        LOGGER.info("{}", JSONUtil.parse(webLog));
-        if (enableDbLog) {
-            try {
-                dbLogService.saveAsync(webLog);
-            } catch (Exception e) {
-                LOGGER.error("Failed to persist web log to DB", e);
-            }
+        try {
+            dbLogService.saveAsync(webLog);
+        } catch (Exception e) {
+            LOGGER.error("Failed to persist web log to DB", e);
         }
         LOGGER.info("{}", JSONUtil.parse(webLog).toString());
         return result;
