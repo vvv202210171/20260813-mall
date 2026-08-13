@@ -51,22 +51,6 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
-  logstash:
-    image: logstash:7.17.3
-    container_name: logstash
-    environment:
-      - TZ=Asia/Shanghai
-    volumes:
-      - /mydata/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf #配置文件挂载
-    depends_on:
-      - elasticsearch #kibana在elasticsearch启动之后再启动
-    links:
-      - elasticsearch:es #可以用es这个域名访问elasticsearch服务
-    ports:
-      - 4560:4560
-      - 4561:4561
-      - 4562:4562
-      - 4563:4563
   kibana:
     image: kibana:7.17.3
     container_name: kibana

@@ -47,7 +47,6 @@
         <spring-data-commons.version>3.5.11</spring-data-commons.version>
         <aliyun-oss.version>3.18.5</aliyun-oss.version>
         <alipay-sdk.version>4.40.630.ALL</alipay-sdk.version>
-        <logstash-logback.version>8.0</logstash-logback.version>
         <minio.version>8.6.0</minio.version>
         <okhttp3.version>5.1.0</okhttp3.version>
         <mall-common.version>1.0-SNAPSHOT</mall-common.version>
@@ -173,12 +172,6 @@
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>
                 <version>${aliyun-oss.version}</version>
-            </dependency>
-            <!--集成logstash-->
-            <dependency>
-                <groupId>net.logstash.logback</groupId>
-                <artifactId>logstash-logback-encoder</artifactId>
-                <version>${logstash-logback.version}</version>
             </dependency>
             <!--MinIO JAVA SDK-->
             <dependency>

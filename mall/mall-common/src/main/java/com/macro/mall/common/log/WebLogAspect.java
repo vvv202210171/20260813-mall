@@ -6,7 +6,6 @@ import cn.hutool.json.JSONUtil;
 import com.macro.mall.common.domain.WebLog;
 import com.macro.mall.common.util.RequestUtil;
 import io.swagger.v3.oas.annotations.Operation;
-import net.logstash.logback.marker.Markers;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -86,7 +85,7 @@ public class WebLogAspect {
         logMap.put("spendTime",webLog.getSpendTime());
         logMap.put("description",webLog.getDescription());
 //        LOGGER.info("{}", JSONUtil.parse(webLog));
-        LOGGER.info(Markers.appendEntries(logMap), JSONUtil.parse(webLog).toString());
+        LOGGER.info("{}", JSONUtil.parse(webLog).toString());
         return result;
     }
 
