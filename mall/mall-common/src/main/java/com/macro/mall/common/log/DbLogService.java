@@ -4,6 +4,7 @@ import com.macro.mall.common.domain.WebLog;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -20,7 +21,11 @@ public class DbLogService {
         this.jdbc = jdbc;
     }
 
-    public void save(WebLog webLog) {
+    /**
+     * 异步保存 WebLog，避免阻塞请求线程。
+     */
+    @Async("webLogExecutor")
+    public void saveAsync(WebLog webLog) {
         String sql = "INSERT INTO web_log (username, ip, method, parameter, result, spend_time, start_time, uri, url, description) " +
                      "VALUES (:username, :ip, :method, :parameter, :result, :spend_time, :start_time, :uri, :url, :description)";
         Map<String, Object> params = new HashMap<>();
@@ -40,5 +45,12 @@ public class DbLogService {
             // Do not break application flow if logging fails
             logger.error("Failed to persist web log", e);
         }
+    }
+
+    /**
+     * 同步保存（保留以防需要同步场景）
+     */
+    public void save(WebLog webLog) {
+        saveAsync(webLog); // best-effort: delegate to async
     }
 }

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -41,6 +42,9 @@ public class WebLogAspect {
 
         @Autowired
         private DbLogService dbLogService;
+
+        @Value("${logstash.enableInnerLog:false}")
+        private boolean enableDbLog;
 
     @Pointcut("execution(public * com.macro.mall.controller.*.*(..))||execution(public * com.macro.mall.*.controller.*.*(..))")
     public void webLog() {
@@ -89,10 +93,12 @@ public class WebLogAspect {
         logMap.put("spendTime",webLog.getSpendTime());
         logMap.put("description",webLog.getDescription());
 //        LOGGER.info("{}", JSONUtil.parse(webLog));
-        try {
-            dbLogService.save(webLog);
-        } catch (Exception e) {
-            LOGGER.error("Failed to persist web log to DB", e);
+        if (enableDbLog) {
+            try {
+                dbLogService.saveAsync(webLog);
+            } catch (Exception e) {
+                LOGGER.error("Failed to persist web log to DB", e);
+            }
         }
         LOGGER.info("{}", JSONUtil.parse(webLog).toString());
         return result;
