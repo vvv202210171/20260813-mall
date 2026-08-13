@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -37,6 +38,9 @@ import java.util.Map;
 @Order(1)
 public class WebLogAspect {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebLogAspect.class);
+
+        @Autowired
+        private DbLogService dbLogService;
 
     @Pointcut("execution(public * com.macro.mall.controller.*.*(..))||execution(public * com.macro.mall.*.controller.*.*(..))")
     public void webLog() {
@@ -85,6 +89,11 @@ public class WebLogAspect {
         logMap.put("spendTime",webLog.getSpendTime());
         logMap.put("description",webLog.getDescription());
 //        LOGGER.info("{}", JSONUtil.parse(webLog));
+        try {
+            dbLogService.save(webLog);
+        } catch (Exception e) {
+            LOGGER.error("Failed to persist web log to DB", e);
+        }
         LOGGER.info("{}", JSONUtil.parse(webLog).toString());
         return result;
     }
